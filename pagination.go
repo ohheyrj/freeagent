@@ -37,7 +37,7 @@ func apiRequestPaged[T any](c *Client, basePath, jsonKey string) ([]T, error) {
 	all := make([]T, 0, total)
 	all = append(all, first[jsonKey]...)
 
-	pages := (total + perPage -1) / perPage
+	pages := (total + perPage - 1) / perPage
 	for p := 2; p <= pages; p++ {
 		q.Set("page", strconv.Itoa(p))
 		u.RawQuery = q.Encode()
