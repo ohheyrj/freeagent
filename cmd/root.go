@@ -10,10 +10,13 @@ import (
 	"github.com/ohheyrj/freeagent/cmd/users"
 )
 
+// version is set at build time via -ldflags "-X github.com/ohheyrj/freeagent/cmd.version=..."
+var version = "dev"
+
 var rootCmd = &cobra.Command{
 	Use:     "freeagent",
 	Short:   "FreeAgent CLI",
-	Version: "0.1.0",
+	Version: version,
 }
 
 func init() {

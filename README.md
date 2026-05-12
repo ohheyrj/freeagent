@@ -1,5 +1,7 @@
 # freeagent
 
+![CI](https://github.com/ohheyrj/freeagent/actions/workflows/ci.yml/badge.svg)
+
 A command-line interface for the [FreeAgent](https://www.freeagent.com) API.
 Built around the resources I use day-to-day — listing projects, tasks and
 users, plus full CRUD for timeslips. Not affiliated with FreeAgent.
