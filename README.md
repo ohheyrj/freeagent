@@ -7,12 +7,19 @@ users, plus full CRUD for timeslips. Not affiliated with FreeAgent.
 ## Install
 
 ```bash
-git clone https://github.com/ohheyrj/go-freeagent.git
-cd go-freeagent
-go install
+go install github.com/ohheyrj/freeagent@latest
 ```
 
-The binary lands in `$(go env GOPATH)/bin`. Make sure that's on your `PATH`.
+The `freeagent` binary lands in `$(go env GOPATH)/bin`. Make sure that's on
+your `PATH`.
+
+Or build from source:
+
+```bash
+git clone https://github.com/ohheyrj/freeagent.git
+cd freeagent
+go install
+```
 
 ## One-time setup
 
