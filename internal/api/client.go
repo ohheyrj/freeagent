@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -70,13 +71,11 @@ func NewClient() (*Client, error) {
 }
 
 func (c *Client) refreshAccessToken() error {
-	// Create the refresh URL
-	form := fmt.Sprintf(
-		"grant_type=refresh_token&refresh_token=%s",
-		c.RefreshToken,
-	)
+	form := url.Values{
+		"grant_type":    {"refresh_token"},
+		"refresh_token": {c.RefreshToken},
+	}.Encode()
 
-	// Setup the http request
 	req, err := http.NewRequest(
 		http.MethodPost,
 		BaseURL+"/token_endpoint",
@@ -86,9 +85,7 @@ func (c *Client) refreshAccessToken() error {
 		return err
 	}
 
-	// Encode the creds and set headers
 	creds := base64.StdEncoding.EncodeToString([]byte(c.ClientID + ":" + c.ClientSecret))
-
 	req.Header.Set("Authorization", "Basic "+creds)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -113,7 +110,6 @@ func (c *Client) refreshAccessToken() error {
 		RefreshToken string `json:"refresh_token"`
 	}
 
-	// Make sure that the return body is valid
 	if err := json.Unmarshal(body, &data); err != nil {
 		return err
 	}
@@ -145,12 +141,10 @@ func (c *Client) DoRequest(method, path string, body any) (*http.Response, []byt
 	}
 
 	url := path
-	// Check that the URL is https
 	if !strings.HasPrefix(path, "http") {
 		url = BaseURL + path
 	}
 
-	// Prepair http request
 	req, err := http.NewRequest(method, url, reqBody)
 	if err != nil {
 		return nil, nil, err
@@ -159,7 +153,7 @@ func (c *Client) DoRequest(method, path string, body any) (*http.Response, []byt
 	// Set Headers
 	req.Header.Set("Authorization", "Bearer "+c.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "Go-Freeagent-SDK/1.0")
+	req.Header.Set("User-Agent", "freeagent-cli/1.0")
 
 	// Do the http request
 	res, err := c.HTTPClient.Do(req)
