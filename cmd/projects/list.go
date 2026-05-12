@@ -1,9 +1,13 @@
-package main
+package projects
 
 import (
 	"fmt"
+	"freeagent/internal/api"
+	"freeagent/internal/output"
 	"net/url"
 	"path"
+
+	"github.com/spf13/cobra"
 )
 
 var validProjectViews = map[string]bool{
@@ -13,7 +17,27 @@ var validProjectViews = map[string]bool{
 	"hidden":    true,
 }
 
-func cmdListProjects(c *Client, view string, asJSON bool) error {
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List projects",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		view, _ := cmd.Flags().GetString("view")
+		asJSON, _ := cmd.Flags().GetBool("json")
+		client, err := api.NewClient()
+		if err != nil {
+			return err
+		}
+		return ListProjects(client, view, asJSON)
+	},
+}
+
+func init() {
+	listCmd.Flags().String("view", "", "filter: active|completed|cancelled|hidden")
+	listCmd.Flags().Bool("json", false, "output as JSON")
+	Cmd.AddCommand(listCmd)
+}
+
+func ListProjects(c *api.Client, view string, asJSON bool) error {
 	if view != "" && !validProjectViews[view] {
 		return fmt.Errorf("invalid view %q (must be active, completed, cancelled, or hidden)", view)
 	}
@@ -30,7 +54,7 @@ func cmdListProjects(c *Client, view string, asJSON bool) error {
 		Status string `json:"status"`
 	}
 
-	projects, err := apiRequestPaged[project](c, endpoint, "projects")
+	projects, err := api.Paginate[project](c, endpoint, "projects")
 	if err != nil {
 		return err
 	}
@@ -51,7 +75,7 @@ func cmdListProjects(c *Client, view string, asJSON bool) error {
 	}
 
 	if asJSON {
-		return printJSON(out)
+		return output.JSON(out)
 	}
 
 	rows := make([][]string, 0, len(out))
@@ -62,21 +86,5 @@ func cmdListProjects(c *Client, view string, asJSON bool) error {
 			p.Status,
 		})
 	}
-	return printTable([]string{"ID", "Name", "Status"}, rows)
-}
-
-func fetchProjectNames(c *Client) (map[string]string, error) {
-	type project struct {
-		URL  string `json:"url"`
-		Name string `json:"name"`
-	}
-	projects, err := apiRequestPaged[project](c, "/projects", "projects")
-	if err != nil {
-		return nil, err
-	}
-	m := make(map[string]string, len(projects))
-	for _, p := range projects {
-		m[p.URL] = p.Name
-	}
-	return m, nil
+	return output.Table([]string{"ID", "Name", "Status"}, rows)
 }

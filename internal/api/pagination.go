@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func apiRequestPaged[T any](c *Client, basePath, jsonKey string) ([]T, error) {
+func Paginate[T any](c *Client, basePath, jsonKey string) ([]T, error) {
 	const perPage = 100
 
 	u, err := url.Parse(basePath)
@@ -19,7 +19,7 @@ func apiRequestPaged[T any](c *Client, basePath, jsonKey string) ([]T, error) {
 	q.Set("page", "1")
 	u.RawQuery = q.Encode()
 
-	res, body, err := c.doRequest(http.MethodGet, u.String(), nil)
+	res, body, err := c.DoRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func apiRequestPaged[T any](c *Client, basePath, jsonKey string) ([]T, error) {
 		u.RawQuery = q.Encode()
 
 		var pageN map[string][]T
-		if err := c.apiRequest(http.MethodGet, u.String(), nil, &pageN); err != nil {
+		if err := c.APIRequest(http.MethodGet, u.String(), nil, &pageN); err != nil {
 			return nil, err
 		}
 		all = append(all, pageN[jsonKey]...)

@@ -1,20 +1,45 @@
-package main
+package tasks
 
 import (
 	"fmt"
 	"net/url"
 	"path"
 	"strconv"
+
+	"github.com/spf13/cobra"
+
+	"freeagent/internal/api"
+	"freeagent/internal/output"
 )
 
-func cmdListTasks(c *Client, projectID string, asJSON bool) error {
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List tasks",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		projectID, _ := cmd.Flags().GetString("project")
+		asJSON, _ := cmd.Flags().GetBool("json")
+		client, err := api.NewClient()
+		if err != nil {
+			return err
+		}
+		return ListTasks(client, projectID, asJSON)
+	},
+}
+
+func init() {
+	listCmd.Flags().String("project", "", "filter by project ID")
+	listCmd.Flags().Bool("json", false, "output as JSON")
+	Cmd.AddCommand(listCmd)
+}
+
+func ListTasks(c *api.Client, projectID string, asJSON bool) error {
 	endpoint := "/tasks"
 	if projectID != "" {
 		if _, err := strconv.Atoi(projectID); err != nil {
 			return fmt.Errorf("invalid project ID %q: must be numeric", projectID)
 		}
 		q := url.Values{}
-		q.Set("project", baseURL+"/projects/"+projectID)
+		q.Set("project", api.BaseURL+"/projects/"+projectID)
 		endpoint += "?" + q.Encode()
 	}
 	type task struct {
@@ -24,12 +49,12 @@ func cmdListTasks(c *Client, projectID string, asJSON bool) error {
 		ProjectID string `json:"project"`
 	}
 
-	tasks, err := apiRequestPaged[task](c, endpoint, "tasks")
+	tasks, err := api.Paginate[task](c, endpoint, "tasks")
 	if err != nil {
 		return err
 	}
 
-	projectNames, err := fetchProjectNames(c)
+	projectNames, err := api.FetchProjectNames(c)
 	if err != nil {
 		return err
 	}
@@ -54,7 +79,7 @@ func cmdListTasks(c *Client, projectID string, asJSON bool) error {
 	}
 
 	if asJSON {
-		return printJSON(out)
+		return output.JSON(out)
 	}
 
 	rows := make([][]string, 0, len(out))
@@ -67,21 +92,5 @@ func cmdListTasks(c *Client, projectID string, asJSON bool) error {
 			t.ProjectID,
 		})
 	}
-	return printTable([]string{"ID", "Name", "Status", "Project Name", "Project ID"}, rows)
-}
-
-func fetchTaskNames(c *Client) (map[string]string, error) {
-	type task struct {
-		URL  string `json:"url"`
-		Name string `json:"name"`
-	}
-	tasks, err := apiRequestPaged[task](c, "/tasks", "tasks")
-	if err != nil {
-		return nil, err
-	}
-	m := make(map[string]string, len(tasks))
-	for _, t := range tasks {
-		m[t.URL] = t.Name
-	}
-	return m, nil
+	return output.Table([]string{"ID", "Name", "Status", "Project Name", "Project ID"}, rows)
 }

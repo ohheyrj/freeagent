@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"bytes"
@@ -11,7 +11,14 @@ import (
 	"strings"
 )
 
-const baseURL = "https://api.freeagent.com/v2"
+const productionURL = "https://api.freeagent.com/v2"
+
+var BaseURL = func() string {
+	if u := os.Getenv("FREEAGENT_BASE_URL"); u != "" {
+		return u
+	}
+	return productionURL
+}()
 
 type Client struct {
 	HTTPClient   *http.Client
@@ -21,7 +28,11 @@ type Client struct {
 	ClientSecret string
 }
 
-func newFaClient() (*Client, error) {
+func NewClient() (*Client, error) {
+	if BaseURL != productionURL {
+		fmt.Fprintf(os.Stderr, "Using FreeAgent API: %s\n", BaseURL)
+	}
+
 	c := &Client{
 		HTTPClient:   http.DefaultClient,
 		AccessToken:  os.Getenv("FREEAGENT_ACCESS_TOKEN"),
@@ -29,6 +40,16 @@ func newFaClient() (*Client, error) {
 		ClientID:     os.Getenv("FREEAGENT_CLIENT_ID"),
 		ClientSecret: os.Getenv("FREEAGENT_CLIENT_SECRET"),
 	}
+
+	if cached, err := loadTokenCache(); err == nil {
+		if cached.AccessToken != "" {
+			c.AccessToken = cached.AccessToken
+		}
+		if cached.RefreshToken != "" {
+			c.RefreshToken = cached.RefreshToken
+		}
+	}
+
 	var missing []string
 	if c.AccessToken == "" {
 		missing = append(missing, "FREEAGENT_ACCESS_TOKEN")
@@ -58,7 +79,7 @@ func (c *Client) refreshAccessToken() error {
 	// Setup the http request
 	req, err := http.NewRequest(
 		http.MethodPost,
-		baseURL+"/token_endpoint",
+		BaseURL+"/token_endpoint",
 		strings.NewReader(form),
 	)
 	if err != nil {
@@ -98,17 +119,21 @@ func (c *Client) refreshAccessToken() error {
 	}
 
 	c.AccessToken = data.AccessToken
+	if data.RefreshToken != "" {
+		c.RefreshToken = data.RefreshToken
+	}
 
-	// Check if the refresh token matches the existing one and if not inform the user to update.
-	if data.RefreshToken != "" && data.RefreshToken != c.RefreshToken {
-		fmt.Fprintln(os.Stderr, "New refresh token issued. Update FREEAGENT_REFRESH_TOKEN:")
-		fmt.Fprintln(os.Stderr, data.RefreshToken)
+	if err := saveTokenCache(tokenCache{
+		AccessToken:  c.AccessToken,
+		RefreshToken: c.RefreshToken,
+	}); err != nil {
+		fmt.Fprintln(os.Stderr, "warning: could not write token cache:", err)
 	}
 
 	return nil
 }
 
-func (c *Client) doRequest(method, path string, body any) (*http.Response, []byte, error) {
+func (c *Client) DoRequest(method, path string, body any) (*http.Response, []byte, error) {
 	var reqBody io.Reader
 
 	if body != nil {
@@ -122,7 +147,7 @@ func (c *Client) doRequest(method, path string, body any) (*http.Response, []byt
 	url := path
 	// Check that the URL is https
 	if !strings.HasPrefix(path, "http") {
-		url = baseURL + path
+		url = BaseURL + path
 	}
 
 	// Prepair http request
@@ -151,7 +176,7 @@ func (c *Client) doRequest(method, path string, body any) (*http.Response, []byt
 			return nil, nil, err
 		}
 
-		return c.doRequest(method, path, body)
+		return c.DoRequest(method, path, body)
 	}
 
 	resBody, err := io.ReadAll(res.Body)
@@ -167,8 +192,8 @@ func (c *Client) doRequest(method, path string, body any) (*http.Response, []byt
 	return res, resBody, nil
 }
 
-func (c *Client) apiRequest(method, path string, body any, out any) error {
-	_, resBody, err := c.doRequest(method, path, body)
+func (c *Client) APIRequest(method, path string, body any, out any) error {
+	_, resBody, err := c.DoRequest(method, path, body)
 	if err != nil {
 		return err
 	}

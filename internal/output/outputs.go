@@ -1,12 +1,13 @@
-package main
+package output
 
 import (
 	"encoding/json"
-	"github.com/olekukonko/tablewriter"
 	"os"
+
+	"github.com/olekukonko/tablewriter"
 )
 
-func printTable(headers []string, rows [][]string) error {
+func Table(headers []string, rows [][]string) error {
 	t := tablewriter.NewWriter(os.Stdout)
 	t.Header(headers)
 	if err := t.Bulk(rows); err != nil {
@@ -15,7 +16,7 @@ func printTable(headers []string, rows [][]string) error {
 	return t.Render()
 }
 
-func printJSON(v any) error {
+func JSON(v any) error {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	return enc.Encode(v)
