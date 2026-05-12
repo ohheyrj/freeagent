@@ -11,8 +11,9 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "freeagent",
-	Short: "FreeAgent CLI",
+	Use:     "freeagent",
+	Short:   "FreeAgent CLI",
+	Version: "0.1.0",
 }
 
 func init() {
