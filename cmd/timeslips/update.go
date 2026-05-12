@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"freeagent/internal/api"
-	"freeagent/internal/output"
+	"github.com/ohheyrj/freeagent/internal/api"
+	"github.com/ohheyrj/freeagent/internal/output"
 )
 
 var updateCmd = &cobra.Command{

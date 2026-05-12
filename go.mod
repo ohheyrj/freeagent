@@ -1,4 +1,4 @@
-module freeagent
+module github.com/ohheyrj/freeagent
 
 go 1.26.1
 

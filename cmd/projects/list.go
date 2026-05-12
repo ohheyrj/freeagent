@@ -2,8 +2,8 @@ package projects
 
 import (
 	"fmt"
-	"freeagent/internal/api"
-	"freeagent/internal/output"
+	"github.com/ohheyrj/freeagent/internal/api"
+	"github.com/ohheyrj/freeagent/internal/output"
 	"net/url"
 	"path"
 

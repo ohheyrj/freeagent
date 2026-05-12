@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"freeagent/cmd"
+	"github.com/ohheyrj/freeagent/cmd"
 	"os"
 )
 

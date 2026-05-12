@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"freeagent/internal/api"
+	"github.com/ohheyrj/freeagent/internal/api"
 )
 
 var deleteCmd = &cobra.Command{

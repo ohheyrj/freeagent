@@ -3,11 +3,11 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"freeagent/cmd/auth"
-	"freeagent/cmd/projects"
-	"freeagent/cmd/tasks"
-	"freeagent/cmd/timeslips"
-	"freeagent/cmd/users"
+	"github.com/ohheyrj/freeagent/cmd/auth"
+	"github.com/ohheyrj/freeagent/cmd/projects"
+	"github.com/ohheyrj/freeagent/cmd/tasks"
+	"github.com/ohheyrj/freeagent/cmd/timeslips"
+	"github.com/ohheyrj/freeagent/cmd/users"
 )
 
 var rootCmd = &cobra.Command{
