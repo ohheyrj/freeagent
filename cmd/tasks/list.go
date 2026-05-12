@@ -22,7 +22,7 @@ var listCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return ListTasks(client, projectID, asJSON)
+		return listTasks(client, projectID, asJSON)
 	},
 }
 
@@ -32,7 +32,7 @@ func init() {
 	Cmd.AddCommand(listCmd)
 }
 
-func ListTasks(c *api.Client, projectID string, asJSON bool) error {
+func listTasks(c *api.Client, projectID string, asJSON bool) error {
 	endpoint := "/tasks"
 	if projectID != "" {
 		if _, err := strconv.Atoi(projectID); err != nil {

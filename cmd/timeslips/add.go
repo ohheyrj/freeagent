@@ -32,7 +32,7 @@ var addCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return AddTimeslip(client, userID, projectID, taskID, hours, date, comment, asJSON)
+		return addTimeslip(client, userID, projectID, taskID, hours, date, comment, asJSON)
 	},
 }
 
@@ -53,7 +53,7 @@ func init() {
 	Cmd.AddCommand(addCmd)
 }
 
-func AddTimeslip(c *api.Client, userID, projectID, taskID, hours, date, comment string, asJSON bool) error {
+func addTimeslip(c *api.Client, userID, projectID, taskID, hours, date, comment string, asJSON bool) error {
 	ts := map[string]any{
 		"user":     api.BaseURL + "/users/" + userID,
 		"project":  api.BaseURL + "/projects/" + projectID,

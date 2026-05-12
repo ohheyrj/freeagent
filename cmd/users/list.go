@@ -18,7 +18,7 @@ var listCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return ListUsers(client, asJSON)
+		return listUsers(client, asJSON)
 	},
 }
 
@@ -27,7 +27,7 @@ func init() {
 	Cmd.AddCommand(listCmd)
 }
 
-func ListUsers(c *api.Client, asJSON bool) error {
+func listUsers(c *api.Client, asJSON bool) error {
 	type user struct {
 		URL       string `json:"url"`
 		FirstName string `json:"first_name"`

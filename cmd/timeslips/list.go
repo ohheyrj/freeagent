@@ -11,7 +11,7 @@ import (
 	"freeagent/internal/output"
 )
 
-type ListTimeslipOpts struct {
+type listTimeslipOpts struct {
 	View      string
 	UserID    string
 	ProjectID string
@@ -30,7 +30,7 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List timeslips",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		var opts ListTimeslipOpts
+		var opts listTimeslipOpts
 		opts.View, _ = cmd.Flags().GetString("view")
 		opts.UserID, _ = cmd.Flags().GetString("user")
 		opts.ProjectID, _ = cmd.Flags().GetString("project")
@@ -42,7 +42,7 @@ var listCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return ListTimeslips(client, opts, asJSON)
+		return listTimeslips(client, opts, asJSON)
 	},
 }
 
@@ -57,7 +57,7 @@ func init() {
 	Cmd.AddCommand(listCmd)
 }
 
-func ListTimeslips(c *api.Client, opts ListTimeslipOpts, asJSON bool) error {
+func listTimeslips(c *api.Client, opts listTimeslipOpts, asJSON bool) error {
 	if opts.View != "" && !validTimeslipViews[opts.View] {
 		return fmt.Errorf("invalid view %q (must be all, running or unbilled)", opts.View)
 	}

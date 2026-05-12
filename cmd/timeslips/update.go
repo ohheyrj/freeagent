@@ -27,7 +27,7 @@ var updateCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return UpdateTimeslip(client, id, cmd, asJSON)
+		return updateTimeslip(client, id, cmd, asJSON)
 	},
 }
 
@@ -47,7 +47,7 @@ func init() {
 	Cmd.AddCommand(updateCmd)
 }
 
-func UpdateTimeslip(c *api.Client, id string, cmd *cobra.Command, asJSON bool) error {
+func updateTimeslip(c *api.Client, id string, cmd *cobra.Command, asJSON bool) error {
 	ts := map[string]any{}
 
 	if cmd.Flags().Changed("user") {

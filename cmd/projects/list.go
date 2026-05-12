@@ -27,7 +27,7 @@ var listCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return ListProjects(client, view, asJSON)
+		return listProjects(client, view, asJSON)
 	},
 }
 
@@ -37,7 +37,7 @@ func init() {
 	Cmd.AddCommand(listCmd)
 }
 
-func ListProjects(c *api.Client, view string, asJSON bool) error {
+func listProjects(c *api.Client, view string, asJSON bool) error {
 	if view != "" && !validProjectViews[view] {
 		return fmt.Errorf("invalid view %q (must be active, completed, cancelled, or hidden)", view)
 	}

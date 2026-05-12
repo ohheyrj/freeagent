@@ -27,7 +27,7 @@ var deleteCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return DeleteTimeslip(client, id, skipConfirm)
+		return deleteTimeslip(client, id, skipConfirm)
 	},
 }
 
@@ -36,7 +36,7 @@ func init() {
 	Cmd.AddCommand(deleteCmd)
 }
 
-func DeleteTimeslip(c *api.Client, id string, skipConfirm bool) error {
+func deleteTimeslip(c *api.Client, id string, skipConfirm bool) error {
 	if !skipConfirm {
 		fmt.Fprintf(os.Stderr, "Delete timeslip %s? [y/N] ", id)
 		reader := bufio.NewReader(os.Stdin)
