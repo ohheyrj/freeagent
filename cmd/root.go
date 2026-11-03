@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ohheyrj/freeagent/cmd/auth"
+	"github.com/ohheyrj/freeagent/cmd/invoices"
 	"github.com/ohheyrj/freeagent/cmd/projects"
 	"github.com/ohheyrj/freeagent/cmd/tasks"
 	"github.com/ohheyrj/freeagent/cmd/timeslips"
@@ -21,6 +22,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(auth.Cmd)
+	rootCmd.AddCommand(invoices.Cmd)
 	rootCmd.AddCommand(projects.Cmd)
 	rootCmd.AddCommand(tasks.Cmd)
 	rootCmd.AddCommand(users.Cmd)

@@ -107,6 +107,41 @@ freeagent timeslips delete 12345
 freeagent timeslips delete 12345 --yes   # skip prompt, for scripts
 ```
 
+Timeslip lists include an **Invoice ID** column showing the invoice linked by
+FreeAgent's `billed_on_invoice` field, or a blank if no link is returned.
+The ID is FreeAgent's internal invoice ID, not the invoice reference (such as
+`056`). JSON timeslip output includes `invoice_id` and `invoice_url`.
+
+### Invoices
+
+Create a draft invoice from a project's unbilled timeslips. The command uses
+the project's contact and currency, groups timeslips onto one line, and defaults
+to today's date and 30-day payment terms. Expenses and estimates are excluded.
+FreeAgent assigns the next invoice reference. The command does not send invoices.
+
+```bash
+# Find the project ID
+freeagent projects list
+
+# Preview the request (fetches project details, creates nothing)
+freeagent invoices create --project=42 --date=2026-11-01 --dry-run
+
+# Create the draft
+freeagent invoices create --project=42 --date=2026-11-01
+
+# Override terms or group timeslips by task
+freeagent invoices create --project=42 --payment-terms=14 --include-timeslips=task --json
+```
+
+`invoices add` is an alias for `invoices create`. Optional flags include
+`--currency=GBP`, `--reference=056`, and `--comments="Additional invoice text"`.
+Timeslip grouping options are `single`, `separate`, `task`, and `date`.
+`--payment-terms=0` means due on receipt.
+
+**The invoice date does not filter timeslips.** The command delegates selection
+of unbilled timeslips to FreeAgent; it does not implement a billing date range.
+Inspect the resulting draft before sending it.
+
 ### Shell completion
 
 Cobra generates completion scripts for all commands and flags:

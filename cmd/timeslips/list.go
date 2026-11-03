@@ -87,12 +87,13 @@ func listTimeslips(c *api.Client, opts listTimeslipOpts, asJSON bool) error {
 	}
 
 	type timeslip struct {
-		URL       string `json:"url"`
-		User      string `json:"user"`
-		ProjectID string `json:"project"`
-		Task      string `json:"task"`
-		DatedOn   string `json:"dated_on"`
-		Hours     string `json:"hours"`
+		URL        string `json:"url"`
+		User       string `json:"user"`
+		ProjectID  string `json:"project"`
+		Task       string `json:"task"`
+		DatedOn    string `json:"dated_on"`
+		Hours      string `json:"hours"`
+		InvoiceURL string `json:"billed_on_invoice"`
 	}
 
 	timeslips, err := api.Paginate[timeslip](c, endpoint, "timeslips")
@@ -123,10 +124,16 @@ func listTimeslips(c *api.Client, opts listTimeslipOpts, asJSON bool) error {
 		TaskName    string `json:"task_name"`
 		DatedOn     string `json:"dated_on"`
 		Hours       string `json:"hours"`
+		InvoiceID   string `json:"invoice_id"`
+		InvoiceURL  string `json:"invoice_url"`
 	}
 
 	out := make([]timeslipOut, 0, len(timeslips))
 	for _, t := range timeslips {
+		invoiceID := ""
+		if t.InvoiceURL != "" {
+			invoiceID = path.Base(t.InvoiceURL)
+		}
 		out = append(out, timeslipOut{
 			ID:          path.Base(t.URL),
 			UserID:      path.Base(t.User),
@@ -137,6 +144,8 @@ func listTimeslips(c *api.Client, opts listTimeslipOpts, asJSON bool) error {
 			TaskName:    taskNames[t.Task],
 			DatedOn:     t.DatedOn,
 			Hours:       t.Hours,
+			InvoiceID:   invoiceID,
+			InvoiceURL:  t.InvoiceURL,
 		})
 	}
 
@@ -156,7 +165,8 @@ func listTimeslips(c *api.Client, opts listTimeslipOpts, asJSON bool) error {
 			t.TaskName,
 			t.DatedOn,
 			t.Hours,
+			t.InvoiceID,
 		})
 	}
-	return output.Table([]string{"ID", "User ID", "User Name", "Project ID", "Project Name", "Task ID", "Task Name", "Dated On", "Hours"}, rows)
+	return output.Table([]string{"ID", "User ID", "User Name", "Project ID", "Project Name", "Task ID", "Task Name", "Dated On", "Hours", "Invoice ID"}, rows)
 }
